@@ -1,0 +1,15 @@
+{
+  "name": "workflow-platform",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm run dev"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com-personal:shivanirai08/workflow-platform.git"
+  },
+  "author": "",
+  "license": "ISC"
+}
