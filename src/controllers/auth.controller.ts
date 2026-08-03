@@ -1,5 +1,5 @@
 import type { Request, Response } from 'express';
-import { registerUser } from '../services/auth.services';
+import { registerUser, loginUser } from '../services/auth.services';
 
 
 export const register = async (req: Request, res: Response) => {
@@ -21,6 +21,36 @@ export const register = async (req: Request, res: Response) => {
         
         return res.status(201).json({
             message: "User registered Successfully",
+            user,
+        });
+    }
+    catch (error) {
+        if(error instanceof Error){
+            return res.status(400).json({
+                message: error.message,
+            })
+        }
+        return res.status(500).json({
+            message: "Internal Server Error",
+        })
+    }
+}
+
+
+export const login = async (req : Request, res : Response) => {
+    try {
+        const { email, password } = req.body;
+
+        if(!email || !password){
+            return res.status(400).json({
+                message: "Email and password are required",
+            })
+        }
+
+        const user = await loginUser(email, password);
+
+        return res.status(200).json({
+            message: "User logged in Successfully",
             user,
         });
     }
