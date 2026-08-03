@@ -4,7 +4,7 @@ import bcrypt from 'bcryptjs';
 type User = {
     email: string;
     password: string;
-    name: string;
+    name?: string;
 }
 
 //registering a user
@@ -18,7 +18,7 @@ export const registerUser = async (user: User) => {
     const newUser = await createUser({
         email: user.email,
         password: hashedPassword,
-        name: user.name,
+        name: user.name || null,
     });
 
     const { password, ...safeUser } = newUser;
