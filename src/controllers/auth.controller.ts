@@ -1,6 +1,7 @@
 import type { Request, Response } from 'express';
 import { registerUser, loginUser } from '../services/auth.services';
 
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export const register = async (req: Request, res: Response) => {
     try {
@@ -9,6 +10,12 @@ export const register = async (req: Request, res: Response) => {
         if(!email || !password){
             return res.status(400).json({
                 message: "Email and password are required",
+            })
+        }
+
+        if(!emailRegex.test(email)){
+            return res.status(400).json({
+                message: "Invalid email address",
             })
         }
         
@@ -44,6 +51,12 @@ export const login = async (req : Request, res : Response) => {
         if(!email || !password){
             return res.status(400).json({
                 message: "Email and password are required",
+            })
+        }
+
+        if(!emailRegex.test(email)){
+            return res.status(400).json({
+                message: "Invalid email address",
             })
         }
 
