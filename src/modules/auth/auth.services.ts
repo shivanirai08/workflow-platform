@@ -1,4 +1,4 @@
-import { createUser, findUserByEmail} from '../repositories/user.repository';
+import { createUser, findUserByEmail} from './user.repository';
 import bcrypt from 'bcryptjs';
 
 type User = {

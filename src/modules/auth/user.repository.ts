@@ -1,5 +1,5 @@
-import prisma from '../config/db';
-import type { User } from '../prisma/client';
+import prisma from '../../config/db';
+import type { User } from '../../prisma/client';
 
 //creating user in db
 export const createUser = async (user: {

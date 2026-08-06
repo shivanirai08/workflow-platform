@@ -1,5 +1,5 @@
 import type { Request, Response } from 'express';
-import { registerUser, loginUser } from '../services/auth.services';
+import { registerUser, loginUser } from './auth.services';
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
