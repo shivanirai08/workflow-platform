@@ -1,5 +1,7 @@
 import { createUser, findUserByEmail} from './user.repository';
 import bcrypt from 'bcryptjs';
+import { createRefreshToken, findRefreshToken } from './user.repository';
+import { accessToken } from '../../utils/token.utils';
 
 type User = {
     email: string;
@@ -21,8 +23,11 @@ export const registerUser = async (user: User) => {
         name: user.name || null,
     });
 
+    const refreshToken = await createRefreshToken(newUser.id);
+    const access = accessToken(newUser.id);
+
     const { password, ...safeUser } = newUser;
-    return safeUser;
+    return { ...safeUser, access, refreshToken };
 }
 
 
