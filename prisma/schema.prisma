@@ -7,6 +7,27 @@ datasource db {
   provider = "postgresql"
 }
 
+enum OrgRole {
+  EMPLOYEE
+  PROJECT_MANAGER
+  ORG_ADMIN
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  REVIEW
+  TESTING
+  DONE
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
@@ -14,4 +35,79 @@ model User {
   name      String?   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  refreshTokens RefreshToken[]
+  memberships Membership[]
+  createdOrgs Organization[] @relation("OrgCreator")
+  createdProjects  Project[] @relation("ProjectCreator")
+  assignedTasks    Task[]    @relation("TaskAssignee")
+  reportedTasks    Task[]    @relation("TaskReporter")
+}
+
+model RefreshToken {
+  id        String    @id @default(cuid())
+  token     String    @unique 
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+}
+
+model Organization {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique
+  createdById String    
+  createdBy   User      @relation("OrgCreator", fields: [createdById], references: [id])
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  memberships Membership[]
+  projects    Project[]
+}
+
+model Membership {
+  id          String          @id @default(cuid())
+  userId      String          
+  organizationId String       
+  role           OrgRole      @default(EMPLOYEE)
+  createdAt      DateTime     @default(now())
+
+  user User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, organizationId])
+}
+
+model Project {
+  id               String        @id @default(cuid())
+  name             String        
+  description      String?
+  organizationId   String
+  createdById      String
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdBy    User         @relation("ProjectCreator", fields: [createdById], references: [id])
+  tasks        Task[]
+}
+
+model Task {
+  id        String        @id @default(cuid())
+  title     String        
+  description    String?
+  status         TaskStatus    @default(TODO)
+  priority       TaskPriority  @default(MEDIUM)
+  dueDate        DateTime?
+  projectId      String
+  assigneeId     String?
+  reporterId     String
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  project  Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  assignee User?   @relation("TaskAssignee", fields: [assigneeId], references: [id])
+  reporter User    @relation("TaskReporter", fields: [reporterId], references: [id])
 }
