@@ -46,6 +46,9 @@ export const loginUser = async (email: string, password: string) => {
         throw new Error('Invalid email or password');
     }
 
+    const refreshToken = await createRefreshToken(user.id);
+    const access = accessToken(user.id);
+
     const { password : _, ...safeUser } = user;   // _ is a placeholder to avoid clash and just ignore
-    return safeUser;
+    return { ...safeUser, access, refreshToken };
 }

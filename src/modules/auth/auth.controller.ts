@@ -66,9 +66,14 @@ export const login = async (req : Request, res : Response) => {
 
         const user = await loginUser(email, password);
 
+        const { access, refreshToken, ...safeUser } = user;
+
+        res.cookie('refresh', refreshToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict', maxAge: 7 * 24 * 60 * 60 * 1000 });
+
         return res.status(200).json({
             message: "User logged in Successfully",
-            user,
+            user: safeUser,
+            accessToken: access,
         });
     }
     catch (error) {
