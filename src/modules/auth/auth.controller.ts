@@ -1,5 +1,5 @@
 import type { Request, Response } from 'express';
-import { registerUser, loginUser, logoutUser } from './auth.services';
+import { registerUser, loginUser, logoutUser, refreshUser } from './auth.services';
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -94,7 +94,7 @@ export const logout = async (req: Request, res: Response) => {
         const { refresh } = req.cookies;
 
         if(!refresh){
-            return res.status(400).json({
+            return res.status(401).json({
                 message: "Refresh token is required",
             })
         }
@@ -116,5 +116,35 @@ export const logout = async (req: Request, res: Response) => {
             message: "Internal Server Error",
         })
 
+    }
+}
+
+
+export const refresh = async (req: Request, res: Response) => {
+    try {
+        const { refresh } = req.cookies;
+
+    if(!refresh){
+        return res.status(401).json({
+            message: "Refresh token is required",
+        })
+    }
+
+    const access = await refreshUser(refresh);
+    
+    return res.status(200).json({
+        message: "User refreshed successfully",
+        accessToken: access,
+    });
+    }
+    catch (error) {
+        if(error instanceof Error){
+            return res.status(400).json({
+                message: error.message,
+            })
+        }
+        return res.status(500).json({
+            message: "Internal Server Error",
+        })
     }
 }

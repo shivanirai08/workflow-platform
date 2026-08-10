@@ -57,12 +57,36 @@ export const loginUser = async (email: string, password: string) => {
 // logout a user
 export const logoutUser = async (refreshToken : string) => {
 
-    const token = await findRefreshToken(refreshToken);
-    if(!token){
+    const row = await findRefreshToken(refreshToken);
+
+    if(!row){
         throw new Error('Invalid refresh token');
     }
 
     await deleteRefreshToken(refreshToken);
 
     return { message: 'Logged out successfully' };
+}
+
+
+// refresh a user
+export const refreshUser = async (refreshToken : string) => {
+
+    const row = await findRefreshToken(refreshToken);
+
+    if(!row){
+        throw new Error('Invalid refresh token');
+    }
+
+    if(row.expiresAt < new Date()){
+        throw new Error('Refresh token expired');
+    }
+
+    if(row.revokedAt) {
+        throw new Error('Refresh token revoked');
+    }
+    
+    const access = accessToken(row.userId);
+
+    return access;
 }

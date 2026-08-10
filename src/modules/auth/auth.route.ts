@@ -1,5 +1,6 @@
 import { Router } from 'express';
-import { register, login, logout } from './auth.controller';
+import { register, login, logout, refresh } from './auth.controller';
+import { authenticate } from '../../middleware/auth.middleware';
 
 const router = Router();
 
@@ -118,12 +119,48 @@ router.post('/register', register);
 router.post('/login', login);
 
 
-
+/** logout a user
+* @openapi
+* /api/auth/logout:
+*   post:
+*     summary: Logout a user
+*     description: Logout a user
+*     responses:
+*       200:
+*         description: User logged out successfully
+*         content:
+*           application/json:
+*             schema:
+*               type: object
+*               properties:
+*                 message:
+*                   type: string
+*                   description: The message of the response
+*       400:
+*         description: Invalid refresh token
+*         content:
+*           application/json:
+*             schema:
+*               type: object
+*               properties:
+*                 message:
+*                   type: string
+*                   description: Invalid refresh token
+*       500:
+*         description: Internal server error
+*         content:
+*           application/json:
+*             schema:
+*               type: object
+*               properties:
+*                 message:
+*                   type: string
+*                   description: Internal server error
+* */
 router.post('/logout', logout);
 
 
-
-// router.post('/refresh', refresh);
+router.post('/refresh', refresh);
 
 
 // router.get('/me', authenticate, getMe);
