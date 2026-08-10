@@ -91,7 +91,7 @@ export const login = async (req : Request, res : Response) => {
 
 export const logout = async (req: Request, res: Response) => {
     try {
-        const { refresh } = req.cookies;
+        const refresh = req.cookies.refresh;
 
         if(!refresh){
             return res.status(401).json({
@@ -122,7 +122,7 @@ export const logout = async (req: Request, res: Response) => {
 
 export const refresh = async (req: Request, res: Response) => {
     try {
-        const { refreshToken } = req.cookies;
+        const refreshToken = req.cookies.refresh;
 
     if(!refreshToken){
         return res.status(401).json({

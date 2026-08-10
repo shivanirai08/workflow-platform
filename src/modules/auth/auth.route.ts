@@ -123,6 +123,10 @@ router.post('/login', login);
 * @openapi
 * /api/auth/logout:
 *   post:
+*     security:
+*       - refreshCookie: []
+*     tags:
+*        - Auth
 *     summary: Logout a user
 *     description: Logout a user
 *     responses:
@@ -165,9 +169,13 @@ router.post('/logout', logout);
 * @openapi
 * /api/auth/refresh:
 *   post:
-*     summary: Refresh a user
-*     description: Refresh a user
-*     responses:
+*      security:
+*         - refreshCookie: []
+*      tags:
+*         - Auth
+*      summary: Refresh a user
+*      description: Refresh a user
+*      responses:
 *       200:
 *         description: User refreshed successfully
 *         content:
@@ -210,6 +218,10 @@ router.post('/refresh', refresh);
 * @openapi
 * /api/auth/me:
 *   get:
+*     security:
+*       - bearerAuth: []
+*     tags:
+*       - Auth
 *     summary: Get a user
 *     description: Get a user
 *     responses:

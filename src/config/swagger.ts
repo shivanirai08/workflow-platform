@@ -9,9 +9,24 @@ const options: swaggerJsdoc.Options = {
       description: 'Auth and workflow APIs',
     },
     servers: [{ url: 'http://localhost:3000' }],
+    components: {
+      securitySchemes: {
+        // Access token 
+        bearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+        },
+        // Refresh cookie
+        refreshCookie: {
+          type: 'apiKey',
+          in: 'cookie',
+          name: 'refresh', // cookie ka exact name (jo res.cookie('refresh', ...) hai)
+        },
+      },
+    },
   },
-  // files having @openapi comments
-  apis: ['./src/routes/*.ts'],
+  apis: ['./src/modules/**/*route.ts'],
 };
 
 export const swaggerSpec = swaggerJsdoc(options);
