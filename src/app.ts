@@ -3,7 +3,7 @@ import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './config/swagger';
 import authRoute from './modules/auth/auth.route';
 import cookieParser from 'cookie-parser';
-
+import { errorHandler } from './middleware/error.middleware';
 
 const app = express();
 
@@ -13,6 +13,8 @@ app.use(cookieParser());
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-app.use('/api/auth', authRoute)
+app.use('/api/auth', authRoute);
+
+app.use(errorHandler);
 
 export default app;

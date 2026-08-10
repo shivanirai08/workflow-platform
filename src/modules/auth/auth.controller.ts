@@ -1,186 +1,158 @@
-import type { Request, Response } from 'express';
+import type { Request, Response, NextFunction } from 'express';
 import { registerUser, loginUser, logoutUser, refreshUser, getUser } from './auth.services';
+import { AppError } from '../../utils/AppError';
+
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-export const register = async (req: Request, res: Response) => {
+const refreshCookieOptions = {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict' as const,
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+};
+
+
+// register user
+export const register = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { email, password, name } = req.body;
         
         if(!email || !password){
-            return res.status(400).json({
-                message: "Email and password are required",
-            })
+            throw new AppError("Email and password are required", 400, "INVALID_REQUEST");
         }
 
         if(!emailRegex.test(email)){
-            return res.status(400).json({
-                message: "Invalid email address",
-            })
+            throw new AppError("Invalid email address", 400, "INVALID_EMAIL");
         }
         
         if(typeof password !== 'string' || password.length < 6 || !/[A-Za-z]/.test(password) || !/[0-9]/.test(password) || !/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)){
-            return res.status(400).json({
-                message: "Password must have at least 6 characters, 1 letter, 1 number and 1 special character.",
-            })
+            throw new AppError("Password must have at least 6 characters, 1 letter, 1 number and 1 special character.", 400, "INVALID_PASSWORD");
         }
         const user = await registerUser({email, password, name});
         
         const { access, refreshToken, ...safeUser } = user;
 
-        res.cookie('refresh', refreshToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict', maxAge: 7 * 24 * 60 * 60 * 1000 });
-        return res.status(201).json({
-            message: "User registered Successfully",
-            user: safeUser,
-            accessToken: access,
-        });
+    res.cookie('refresh', refreshToken, refreshCookieOptions);
+
+    return res.status(201).json({
+      success: true,
+      message: 'User registered Successfully',
+      data: {
+        user: safeUser,
+        accessToken: access,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+// login user
+export const login = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      throw new AppError('Email and password are required', 400, 'VALIDATION_ERROR');
     }
-    catch (error) {
-        if(error instanceof Error){
-            return res.status(400).json({
-                message: error.message,
-            })
-        }
-        return res.status(500).json({
-            message: "Internal Server Error",
-        })
+
+    if (!emailRegex.test(email)) {
+      throw new AppError('Invalid email address', 400, 'INVALID_EMAIL');
     }
-}
+
+    const user = await loginUser(email, password);
+    const { access, refreshToken, ...safeUser } = user;
+
+    res.cookie('refresh', refreshToken, refreshCookieOptions);
+
+    return res.status(200).json({
+      success: true,
+      message: 'User logged in Successfully',
+      data: {
+        user: safeUser,
+        accessToken: access,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 
 
-export const login = async (req : Request, res : Response) => {
-    try {
-        const { email, password } = req.body;
+// logout user
+export const logout = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const refresh = req.cookies.refresh;
 
-        if(!email || !password){
-            return res.status(400).json({
-                message: "Email and password are required",
-            })
-        }
-
-        if(!emailRegex.test(email)){
-            return res.status(400).json({
-                message: "Invalid email address",
-            })
-        }
-
-        const user = await loginUser(email, password);
-
-        const { access, refreshToken, ...safeUser } = user;
-
-        res.cookie('refresh', refreshToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict', maxAge: 7 * 24 * 60 * 60 * 1000 });
-
-        return res.status(200).json({
-            message: "User logged in Successfully",
-            user: safeUser,
-            accessToken: access,
-        });
+    if (!refresh) {
+      throw new AppError('Refresh token is required', 401, 'REFRESH_TOKEN_REQUIRED');
     }
-    catch (error) {
-        if(error instanceof Error){
-            return res.status(400).json({
-                message: error.message,
-            })
-        }
-        return res.status(500).json({
-            message: "Internal Server Error",
-        })
-    }
-}
+
+    const result = await logoutUser(refresh);
+
+    res.clearCookie('refresh', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: result.message,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 
 
-export const logout = async (req: Request, res: Response) => {
-    try {
-        const refresh = req.cookies.refresh;
+// refresh user
+export const refresh = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const refreshToken = req.cookies.refresh;
 
-        if(!refresh){
-            return res.status(401).json({
-                message: "Refresh token is required",
-            })
-        }
-
-        const message = await logoutUser(refresh);
-
-        res.clearCookie('refresh', { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict',});   
-
-        return res.status(200).json(message);
-    }
-    catch (error) {
-
-        if(error instanceof Error){
-            return res.status(400).json({
-                message: error.message,
-            })
-        }
-        return res.status(500).json({
-            message: "Internal Server Error",
-        })
-
-    }
-}
-
-
-export const refresh = async (req: Request, res: Response) => {
-    try {
-        const refreshToken = req.cookies.refresh;
-
-    if(!refreshToken){
-        return res.status(401).json({
-            message: "Refresh token is required",
-        })
+    if (!refreshToken) {
+      throw new AppError('Refresh token is required', 401, 'REFRESH_TOKEN_REQUIRED');
     }
 
     const access = await refreshUser(refreshToken);
-    
+
     return res.status(200).json({
-        message: "User refreshed successfully",
+      success: true,
+      message: 'User refreshed successfully',
+      data: {
         accessToken: access,
+      },
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+// get user
+export const getMe = async (
+  req: Request & { user?: { id: string } },
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const userId = req.user?.id;
+
+    if (!userId) {
+      throw new AppError('Unauthorized', 401, 'UNAUTHORIZED');
     }
-    catch (error) {
-        if(error instanceof Error){
-            return res.status(400).json({
-                message: error.message,
-            })
-        }
-        return res.status(500).json({
-            message: "Internal Server Error",
-        })
-    }
-}
 
+    const user = await getUser(userId);
 
-export const getMe = async (req: Request & { user?: { id: string } }, res: Response) => {
-    try {
-        const userId = req.user?.id;
-
-        if(!userId){
-            return res.status(401).json({
-                message: "Unauthorized",
-            })
-        }
-
-        const user = await getUser(userId);
-
-        if(!user){
-            return res.status(404).json({
-                message: "User not found",
-            })
-        }
-
-        return res.status(200).json({
-            message: "User fetched successfully",
-            user: user,
-        });
-    }
-    catch (error) {
-        if(error instanceof Error){
-            return res.status(400).json({
-                message: error.message,
-            })
-        }
-        return res.status(500).json({
-            message: "Internal Server Error",
-        })
-    }
-}
+    return res.status(200).json({
+      success: true,
+      message: 'User fetched successfully',
+      data: { user },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
