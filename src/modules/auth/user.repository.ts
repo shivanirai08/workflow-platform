@@ -44,3 +44,12 @@ export const findRefreshToken = async (token : string) => {
         },
     });
 }
+
+// deleting refresh token
+export const deleteRefreshToken = async (token : string) => {
+    return await prisma.refreshToken.delete({
+        where: {
+            token: hashRefreshToken(token),
+        }
+    })
+}

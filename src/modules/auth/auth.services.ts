@@ -1,6 +1,6 @@
 import { createUser, findUserByEmail} from './user.repository';
 import bcrypt from 'bcryptjs';
-import { createRefreshToken, findRefreshToken } from './user.repository';
+import { createRefreshToken, findRefreshToken, deleteRefreshToken } from './user.repository';
 import { accessToken } from '../../utils/token.utils';
 
 type User = {
@@ -51,4 +51,18 @@ export const loginUser = async (email: string, password: string) => {
 
     const { password : _, ...safeUser } = user;   // _ is a placeholder to avoid clash and just ignore
     return { ...safeUser, access, refreshToken };
+}
+
+
+// logout a user
+export const logoutUser = async (refreshToken : string) => {
+
+    const token = await findRefreshToken(refreshToken);
+    if(!token){
+        throw new Error('Invalid refresh token');
+    }
+
+    await deleteRefreshToken(refreshToken);
+
+    return { message: 'Logged out successfully' };
 }
