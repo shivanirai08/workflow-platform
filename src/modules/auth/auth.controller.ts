@@ -1,5 +1,5 @@
 import type { Request, Response } from 'express';
-import { registerUser, loginUser, logoutUser, refreshUser } from './auth.services';
+import { registerUser, loginUser, logoutUser, refreshUser, getUser } from './auth.services';
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -122,20 +122,56 @@ export const logout = async (req: Request, res: Response) => {
 
 export const refresh = async (req: Request, res: Response) => {
     try {
-        const { refresh } = req.cookies;
+        const { refreshToken } = req.cookies;
 
-    if(!refresh){
+    if(!refreshToken){
         return res.status(401).json({
             message: "Refresh token is required",
         })
     }
 
-    const access = await refreshUser(refresh);
+    const access = await refreshUser(refreshToken);
     
     return res.status(200).json({
         message: "User refreshed successfully",
         accessToken: access,
     });
+    }
+    catch (error) {
+        if(error instanceof Error){
+            return res.status(400).json({
+                message: error.message,
+            })
+        }
+        return res.status(500).json({
+            message: "Internal Server Error",
+        })
+    }
+}
+
+
+export const getMe = async (req: Request & { user?: { id: string } }, res: Response) => {
+    try {
+        const userId = req.user?.id;
+
+        if(!userId){
+            return res.status(401).json({
+                message: "Unauthorized",
+            })
+        }
+
+        const user = await getUser(userId);
+
+        if(!user){
+            return res.status(404).json({
+                message: "User not found",
+            })
+        }
+
+        return res.status(200).json({
+            message: "User fetched successfully",
+            user: user,
+        });
     }
     catch (error) {
         if(error instanceof Error){

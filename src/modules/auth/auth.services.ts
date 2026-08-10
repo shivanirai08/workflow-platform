@@ -1,6 +1,6 @@
 import { createUser, findUserByEmail} from './user.repository';
 import bcrypt from 'bcryptjs';
-import { createRefreshToken, findRefreshToken, deleteRefreshToken } from './user.repository';
+import { createRefreshToken, findRefreshToken, deleteRefreshToken, findUserById } from './user.repository';
 import { accessToken } from '../../utils/token.utils';
 
 type User = {
@@ -85,8 +85,21 @@ export const refreshUser = async (refreshToken : string) => {
     if(row.revokedAt) {
         throw new Error('Refresh token revoked');
     }
-    
+
     const access = accessToken(row.userId);
 
     return access;
+}
+
+
+// get a user
+export const getUser = async (userId : string) => {
+    const user = await findUserById(userId);
+
+    if(!user){
+        throw new Error('User not found');
+    }
+
+    const { password, ...safeUser } = user;
+    return safeUser;
 }

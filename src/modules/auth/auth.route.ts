@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { register, login, logout, refresh } from './auth.controller';
+import { register, login, logout, refresh, getMe } from './auth.controller';
 import { authenticate } from '../../middleware/auth.middleware';
 
 const router = Router();
@@ -157,12 +157,99 @@ router.post('/login', login);
 *                   type: string
 *                   description: Internal server error
 * */
+
 router.post('/logout', logout);
 
+
+/** refresh a user
+* @openapi
+* /api/auth/refresh:
+*   post:
+*     summary: Refresh a user
+*     description: Refresh a user
+*     responses:
+*       200:
+*         description: User refreshed successfully
+*         content:
+*           application/json:
+*             schema:
+*               type: object
+*               properties:
+*                 message:
+*                   type: string
+*                   description: The message of the response
+*                 accessToken:
+*                   type: string
+*                   description: The access token of the user
+*       400:
+*         description: Invalid refresh token
+*         content:
+*           application/json:
+*             schema:
+*               type: object
+*               properties:
+*                 message:
+*                   type: string
+*                   description: Invalid refresh token
+*       500:
+*         description: Internal server error
+*         content:
+*           application/json:
+*             schema:
+*               type: object
+*               properties:
+*                 message:
+*                   type: string
+*                   description: Internal server error
+* */
 
 router.post('/refresh', refresh);
 
 
-// router.get('/me', authenticate, getMe);
+/** get a user
+* @openapi
+* /api/auth/me:
+*   get:
+*     summary: Get a user
+*     description: Get a user
+*     responses:
+*       200:
+*         description: User fetched successfully
+*         content:
+*           application/json:
+*             schema:
+*               type: object
+*               properties:
+*                 message:
+*                   type: string
+*                   description: The message of the response
+*                 user:
+*                   type: object
+*                   description: The user data
+*       401:
+*         description: Unauthorized
+*         content:
+*           application/json:
+*             schema:
+*               type: object
+*               properties:
+*                 message:
+*                   type: string
+*                   description: Unauthorized
+*       500:
+*         description: Internal server error
+*         content:
+*           application/json:
+*             schema:
+*               type: object
+*               properties:
+*                 message:
+*                   type: string
+*                   description: Internal server error
+* */
+
+router.get('/me', authenticate, getMe);
+
+
 
 export default router;

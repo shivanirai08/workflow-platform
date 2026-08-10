@@ -1,7 +1,6 @@
 import prisma from '../../config/db';
-import type { User } from '../../prisma/client';
 import { refreshToken, hashRefreshToken } from '../../utils/token.utils';
-import crypto from 'crypto';
+
 
 //creating user in db
 export const createUser = async (user: {
@@ -12,6 +11,7 @@ export const createUser = async (user: {
         return await prisma.user.create({ data: user })
 }
 
+
 // searching user by email
 export const findUserByEmail = async (email: string) => {
     const user = await prisma.user.findUnique({
@@ -19,6 +19,15 @@ export const findUserByEmail = async (email: string) => {
     })
     return user;
 }
+
+
+// finding user by id
+export const findUserById = async (userId : string) => {
+    return await prisma.user.findUnique({
+        where: { id: userId },
+    });
+}
+
 
 // creating refresh token
 export const createRefreshToken = async (userId : string) => {
@@ -44,6 +53,7 @@ export const findRefreshToken = async (token : string) => {
         },
     });
 }
+
 
 // deleting refresh token
 export const deleteRefreshToken = async (token : string) => {
