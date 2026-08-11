@@ -326,11 +326,192 @@ router.get('/:id', authenticate, getOrganization);
  *                   type: array
  *                   description: All organizations data
  */
+
 router.get('/', authenticate, getAllOrganizations);
 
 
+/** update organization
+ * @openapi
+ * /api/organizations/:id:
+ *   patch:
+ *     tags:
+ *       - Organizations
+ *     summary: Update organization
+ *     description: Update organization
+ *     security:
+ *       - bearerAuth: []   
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         description: The id of the organization
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: The name of the organization
+ *               slug:
+ *                 type: string
+ *                 description: The slug of the organization
+ *     responses:
+ *       200:
+ *         description: Organization updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   description: Success status
+ *                 message:
+ *                   type: string
+ *                   description: Message
+ *                 data:
+ *                   type: object
+ *                   description: Organization data
+ *       400:
+ *         description: Bad request
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   description: Success status
+ *                 message:
+ *                   type: string
+ *                   description: Message
+ *                 data:
+ *                   type: object
+ *                   description: Organization data
+ */ 
 
 router.patch('/:id', authenticate, updateOrganization);
+
+/** delete organization
+ * @openapi
+ * /api/organizations/:id:
+ *   delete:
+ *     tags:
+ *       - Organizations
+ *     summary: Delete organization
+ *     description: Delete organization
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         description: The id of the organization
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Organization deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   description: Success status
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: object
+ *                   description: Organization data
+ *       400:
+ *         description: Bad request
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object   
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   description: Success status
+ *                 message:
+ *                   type: string
+ *                   description: Message
+ *                 data:
+ *                   type: object
+ *                   description: Organization data
+ *       401:
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   description: Success status
+ *                 message:
+ *                   type: string
+ *                   description: Message
+ *                 data:
+ *                   type: object
+ *                   description: Organization data
+ *       403:
+ *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   description: Success status
+ *                 message:
+ *                   type: string
+ *                   description: Message
+ *                 data:
+ *                   type: object
+ *                   description: Organization data
+ *       404:
+ *         description: Not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   description: Success status
+ *                 message:
+ *                   type: string
+ *                   description: Message
+ *                 data:
+ *                   type: object
+ *                   description: Organization data
+ *       500:
+ *         description: Internal server error
+ *         content: 
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   description: Success status
+ *                 message:
+ *                   type: string
+ *                   description: Message
+ *                 data:
+ *                   type: object
+ *                   description: Organization data
+ */
+
 router.delete('/:id', authenticate, deleteOrganization);
 
 export default router;

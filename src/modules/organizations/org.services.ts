@@ -60,7 +60,7 @@ export const updateOrganizationService = async (userId: string, orgId: string, o
     if(organization.slug !== undefined) {
         const existingOrg = await findOrganizationBySlug(organization.slug);
         if(existingOrg && existingOrg.id !== orgId) {
-            throw new AppError('Slug already exists', 400, 'SLUG_ALREADY_EXISTS');
+            throw new AppError('Slug already exists', 409, 'SLUG_ALREADY_EXISTS');
         }
         data.slug = organization.slug;
     }
