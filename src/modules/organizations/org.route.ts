@@ -134,7 +134,7 @@ router.post('/', authenticate, createOrganization);
 
 /** get organization by id
  * @openapi
- * /api/organizations/:id:
+ * /api/organizations/{id}:
  *   get:
  *     tags:
  *       - Organizations
@@ -332,7 +332,7 @@ router.get('/', authenticate, getAllOrganizations);
 
 /** update organization
  * @openapi
- * /api/organizations/:id:
+ * /api/organizations/{id}:
  *   patch:
  *     tags:
  *       - Organizations
@@ -399,7 +399,7 @@ router.patch('/:id', authenticate, updateOrganization);
 
 /** delete organization
  * @openapi
- * /api/organizations/:id:
+ * /api/organizations/{id}:
  *   delete:
  *     tags:
  *       - Organizations

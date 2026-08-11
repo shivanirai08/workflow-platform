@@ -87,7 +87,7 @@ export const updateOrganization = async (req: Request & { user?: { id:string }},
         if (name && (name.length < 3 || name.length > 50)) {
             return next(new AppError('Name must be between 3 and 50 characters', 400, 'VALIDATION_ERROR'));
         }
-        
+
         const organization = await updateOrganizationService(userId, orgId, { name: name || undefined, slug: slug || undefined });
         res.status(200).json({
             success: true,
@@ -108,7 +108,6 @@ export const deleteOrganization = async (req: Request & { user?: { id:string }},
         res.status(200).json({
             success: true,
             message: 'Organization deleted successfully',
-            data: organization,
         });
     } catch (error) {
         next(error);
