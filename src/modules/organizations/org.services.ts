@@ -1,4 +1,4 @@
-import { createOrganization, findOrganizationBySlug, findOrganizationById, findMembership } from './org.repository';
+import { createOrganization, findOrganizationBySlug, findOrganizationById, findMembership, findMembershipWithOrgs } from './org.repository';
 import { AppError } from '../../utils/AppError';
 
 
@@ -34,4 +34,8 @@ export const getOrganizationService = async (orgId : string, userId : string) =>
 };
 
 
-// updating organization
+// user's all organizations
+export const getAllOrganizationsService = async (userId : string) => {
+    const memberships = await findMembershipWithOrgs(userId);
+    return memberships.map((m) => ({...m.organization, role: m.role}) )
+};

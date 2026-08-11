@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from 'express';
 import { AppError } from '../../utils/AppError';
-import { createOrganizationService, getOrganizationService } from './org.services';
+import { createOrganizationService, getOrganizationService, getAllOrganizationsService } from './org.services';
 
 
 
@@ -41,6 +41,22 @@ export const getOrganization = async (req: Request & { user?: { id:string }}, re
             success: true,
             message: 'Organization fetched successfully',
             data: organization,
+        });
+    } catch (error) {
+        next(error);
+    }
+}
+
+
+// get all organizations of a user
+export const getAllOrganizations = async (req: Request & { user?: { id:string }}, res: Response, next: NextFunction) => {
+    try{
+        const userId = req.user!.id;
+        const organizations = await getAllOrganizationsService(userId);
+        res.status(200).json({
+            success: true,
+            message: 'All organizations fetched successfully',
+            data: organizations,
         });
     } catch (error) {
         next(error);

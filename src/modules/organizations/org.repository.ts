@@ -56,3 +56,16 @@ export const findMembership = async (orgId: string, userId: string) => {
         },
     });
 };
+
+
+// finding all organizations of a user
+export const findMembershipWithOrgs = async (userId: string) => {
+    return await prisma.membership.findMany({
+        where: {
+            userId: userId,
+        },
+        include: {
+            organization: true,
+        }
+    });
+};
