@@ -90,3 +90,65 @@ export const deleteOrganization = async (orgId: string) => {
         where: { id: orgId },
     });
 };
+
+
+// adding member to organization
+export const addMember = async (orgId: string, userId: string, role: 'PROJECT_MANAGER' | 'EMPLOYEE') => {
+    return await prisma.membership.create({
+        data: {
+            userId: userId,
+            organizationId: orgId,
+            role: role,
+        },
+        include: {
+            user: true,
+        },
+    });
+};
+
+// finding user already in organization
+export const findUserInOrganization = async (orgId: string, userId: string) => {
+    return await prisma.membership.findFirst({
+        where: {
+            organizationId: orgId,
+            userId: userId,
+        },
+    });
+};
+
+
+// finding all members of an organization
+export const findMembersOfOrganization = async (orgId: string) => {
+    return await prisma.membership.findMany({
+        where: {
+            organizationId: orgId,
+        },
+        include: {
+            user: true,
+        },
+    });
+};
+
+
+// removing member from organization
+export const removeMember = async (memberId: string) => {
+    return await prisma.membership.delete({
+        where: {
+            id: memberId,
+        },
+    });
+};
+
+
+// updating member role
+export const updateMemberRole = async (memberId: string, role: 'PROJECT_MANAGER' | 'EMPLOYEE') => {
+    return await prisma.membership.update({
+        where: {
+            id: memberId,
+        },
+        data: { role: role },
+        include: {
+            user: true,
+        },
+    });
+};

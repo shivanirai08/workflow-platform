@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from 'express';
 import { AppError } from '../../utils/AppError';
-import { createOrganizationService, getOrganizationService, getAllOrganizationsService, updateOrganizationService, deleteOrganizationService } from './org.services';
+import { createOrganizationService, getOrganizationService, getAllOrganizationsService, updateOrganizationService, deleteOrganizationService, addMemberService, getMembersOfOrganizationService, removeMemberFromOrganizationService, updateMemberRoleService } from './org.services';
 
 
 const SLUG_REGEX = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
@@ -113,6 +113,94 @@ export const deleteOrganization = async (req: Request & { user?: { id:string }},
         res.status(200).json({
             success: true,
             message: 'Organization deleted successfully',
+        });
+    } catch (error) {
+        next(error);
+    }
+}
+
+
+// add member to organization
+export const addMemberToOrganization = async (req: Request & { user?: { id:string }}, res: Response, next: NextFunction) => {
+    try{
+        const orgId = req.params.id as string;
+        const userId = req.user!.id;
+        const { email, role } = req.body;
+        if (!email || !role) {
+            return next(new AppError('Email and role are required', 400, 'VALIDATION_ERROR'));
+        }
+
+        if(!(/^[^\s@]+@[^\s@]+\.[^\s@]+$/).test(email)) {
+            return next(new AppError('Invalid email', 400, 'VALIDATION_ERROR'));
+        }
+        if (role !== 'PROJECT_MANAGER' && role !== 'EMPLOYEE') {
+            return next(new AppError('Invalid role', 400, 'VALIDATION_ERROR'));
+        }
+        
+        const organization = await addMemberService(userId, orgId, email, role);
+        res.status(201).json({
+            success: true,
+            message: 'Member added to organization successfully',
+            data: organization,
+        });
+    } catch (error) {
+        next(error);
+    }
+}
+
+
+// get all members of an organization
+export const getMembersOfOrganization = async (req: Request & { user?: { id:string }}, res: Response, next: NextFunction) => {
+    try{
+        const orgId = req.params.id as string;
+        const userId = req.user!.id;
+        const members = await getMembersOfOrganizationService(userId, orgId);
+        res.status(200).json({
+            success: true,
+            message: 'Members fetched successfully',
+            data: members,
+        });
+    } catch (error) {
+        next(error);
+    }
+}
+
+
+// remove member from organization
+export const removeMemberFromOrganization = async (req: Request & { user?: { id:string }}, res: Response, next: NextFunction) => {
+    try{
+        const orgId = req.params.id as string;
+        const userId = req.user!.id;
+        const memberUserId = req.params.memberUserId as string;
+        await removeMemberFromOrganizationService(userId, orgId, memberUserId);
+        res.status(200).json({
+            success: true,
+            message: 'Member removed from organization successfully',
+        });
+    } catch (error) {
+        next(error);
+    }
+}
+
+
+// update member role
+export const updateMemberRole = async (req: Request & { user?: { id:string }}, res: Response, next: NextFunction) => {
+    try{
+        const orgId = req.params.id as string;
+        const userId = req.user!.id;
+        const memberUserId = req.params.memberUserId as string;
+        const { role } = req.body;
+        if (!role) {
+            return next(new AppError('Role is required', 400, 'VALIDATION_ERROR'));
+        }
+        if (role !== 'PROJECT_MANAGER' && role !== 'EMPLOYEE') {
+            return next(new AppError('Invalid role', 400, 'VALIDATION_ERROR'));
+        }
+        const member = await updateMemberRoleService(userId, orgId, memberUserId, role);
+        res.status(200).json({
+            success: true,
+            message: 'Member role updated successfully',
+            data: member,
         });
     } catch (error) {
         next(error);
