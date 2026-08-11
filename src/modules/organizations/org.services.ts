@@ -1,5 +1,6 @@
-import { createOrganization, findOrganizationBySlug, findOrganizationById, findMembership, findMembershipWithOrgs, updateOrganization, deleteOrganization } from './org.repository';
+import { createOrganization, findOrganizationBySlug, findMembershipWithOrgs, updateOrganization, deleteOrganization } from './org.repository';
 import { AppError } from '../../utils/AppError';
+import { assertOrgAdmin, assertOrgMember } from '../../utils/orgAccess';
 
 
 // creating organization
@@ -19,18 +20,7 @@ export const createOrganizationService = async (organization: {
 
 // getting organization data
 export const getOrganizationService = async (orgId : string, userId : string) => {
-    const org = await findOrganizationById(orgId);
-    if (!org) {
-        throw new AppError('Organization not found', 404, "ORG_NOT_FOUND");
-    }
-    const membership = await findMembership(orgId, userId);
-    if (!membership) {
-        throw new AppError('You are not a member of this organization', 403, "FORBIDDEN_ACCESS");
-    }
-    return {
-        organization: org,
-        membership: membership,
-    };
+    return await assertOrgMember(userId, orgId);
 };
 
 
@@ -46,14 +36,7 @@ export const updateOrganizationService = async (userId: string, orgId: string, o
     name: string | undefined;
     slug: string | undefined;
 }) => {
-    const org = await findOrganizationById(orgId);
-    if (!org) {
-        throw new AppError('Organization not found', 404, "ORG_NOT_FOUND");
-    }
-    const membership = await findMembership(orgId, userId);
-    if (!membership || membership.role !== 'ORG_ADMIN') {
-        throw new AppError('You are not authorized to update this organization', 403, "FORBIDDEN_ACCESS");
-    }
+    await assertOrgAdmin(userId, orgId);
 
     let data: { name?: string; slug?: string } = {};
     if(organization.name !== undefined) data.name = organization.name;
@@ -72,14 +55,7 @@ export const updateOrganizationService = async (userId: string, orgId: string, o
 
 // deleting organization
 export const deleteOrganizationService = async (userId: string, orgId: string) => {
-    const org = await findOrganizationById(orgId);
-    if (!org) {
-        throw new AppError('Organization not found', 404, "ORG_NOT_FOUND");
-    }
-    const membership = await findMembership(orgId, userId);
-    if (!membership || membership.role !== 'ORG_ADMIN') {
-        throw new AppError('You are not authorized to delete this organization', 403, "FORBIDDEN_ACCESS");
-    }
+    await assertOrgAdmin(userId, orgId);
     const deletedOrg = await deleteOrganization(orgId);
     return deletedOrg;
 };

@@ -25,12 +25,15 @@ const router = Router();
  *               name:
  *                 type: string
  *                 description: The name of the organization
- *               description:
+ *               slug:
  *                 type: string
- *                 description: The description of the organization
+ *                 description: The slug of the organization
+ *                 pattern: ^[a-z0-9]+(?:-[a-z0-9]+)*$
+ *                 minLength: 3
+ *                 maxLength: 20
  *             required:
  *               - name
- *               - description
+ *               - slug
  *     responses:
  *       200:
  *         description: Organization created successfully
@@ -360,6 +363,9 @@ router.get('/', authenticate, getAllOrganizations);
  *               slug:
  *                 type: string
  *                 description: The slug of the organization
+ *                 pattern: ^[a-z0-9]+(?:-[a-z0-9]+)*$
+ *                 minLength: 3
+ *                 maxLength: 20
  *     responses:
  *       200:
  *         description: Organization updated successfully

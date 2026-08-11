@@ -3,7 +3,7 @@ import { AppError } from '../../utils/AppError';
 import { createOrganizationService, getOrganizationService, getAllOrganizationsService, updateOrganizationService, deleteOrganizationService } from './org.services';
 
 
-
+const SLUG_REGEX = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 // create organization
 export const createOrganization = async (req: Request & { user?: { id: string } }, res: Response, next: NextFunction) => {
@@ -12,6 +12,9 @@ export const createOrganization = async (req: Request & { user?: { id: string } 
         const userId = req.user!.id;
         if (!name || !slug) {
             return next(new AppError('Name and slug are required', 400, 'VALIDATION_ERROR'));
+        }
+        if (slug !== undefined && !SLUG_REGEX.test(slug)) {
+            return next(new AppError('Slug must be lowercase letters, numbers, and hyphens only', 400, 'INVALID_SLUG'));
         }
         if (slug.length < 3 || slug.length > 20) {
             return next(new AppError('Slug must be between 3 and 20 characters', 400, 'VALIDATION_ERROR'));
@@ -80,14 +83,16 @@ export const updateOrganization = async (req: Request & { user?: { id:string }},
         if (name === undefined && slug === undefined) {
             return next(new AppError('Provide data to update', 400, 'VALIDATION_ERROR'));
         }
-        
-        if (slug && (slug.length < 3 || slug.length > 20)) {
+        if (slug !== undefined && !SLUG_REGEX.test(slug)) {
+            return next(new AppError('Slug must be lowercase letters, numbers, and hyphens only', 400, 'INVALID_SLUG'));
+        }
+        if (slug !== undefined && (slug.length < 3 || slug.length > 20)) {
             return next(new AppError('Slug must be between 3 and 20 characters', 400, 'VALIDATION_ERROR'));
         }
-        if (name && (name.length < 3 || name.length > 50)) {
+        if (name !== undefined && (name.length < 3 || name.length > 50)) {
             return next(new AppError('Name must be between 3 and 50 characters', 400, 'VALIDATION_ERROR'));
         }
-
+        
         const organization = await updateOrganizationService(userId, orgId, { name: name || undefined, slug: slug || undefined });
         res.status(200).json({
             success: true,
