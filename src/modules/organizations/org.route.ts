@@ -763,8 +763,265 @@ router.post('/:id/members', authenticate, addMemberToOrganization);
 router.get('/:id/members', authenticate, getMembersOfOrganization);
 
 
+/** update member role
+ * @openapi
+ * /api/organizations/{id}/members/{memberUserId}:
+ *   patch:
+ *     tags:
+ *       - Organizations
+ *     summary: Update member role
+ *     description: Update member role
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         description: The id of the organization
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - name: memberUserId
+ *         in: path
+ *         description: The user id of the member
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               role:
+ *                 type: string
+ *                 description: The role of the user
+ *                 enum:
+ *                   - PROJECT_MANAGER
+ *                   - EMPLOYEE
+ *                 required: true
+ *     responses:
+ *       200:
+ *         description: Member role updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   description: Success status
+ *                 message:
+ *                   type: string
+ *                   description: Message
+ *                 data:
+ *                   type: object
+ *                   description: Member data
+ *       400:
+ *         description: Bad request
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   description: Success status
+ *                 message:
+ *                   type: string
+ *                   description: Message
+ *                 data:
+ *                   type: object
+ *                   description: Member data
+ *       401:
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   description: Success status
+ *                 message:
+ *                   type: string
+ *                   description: Message
+ *                 data:
+ *                   type: object
+ *                   description: Member data
+ *       403:
+ *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   description: Success status
+ *                 message:
+ *                   type: string
+ *                   description: Message
+ *                 data:
+ *                   type: object
+ *                   description: Member data
+ *       404:
+ *         description: Not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   description: Success status
+ *                 message:
+ *                   type: string
+ *                   description: Message
+ *                 data:
+ *                   type: object
+ *                   description: Member data
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   description: Success status
+ *                 message:
+ *                   type: string
+ *                   description: Message
+ *                 data:
+ *                   type: object
+ *                   description: Member data
+ */
 
 router.patch('/:id/members/:memberUserId', authenticate, updateMemberRole);
+
+/** remove member from organization
+ * @openapi
+ * /api/organizations/{id}/members/{memberUserId}:
+ *   delete:
+ *     tags:
+ *       - Organizations
+ *     summary: Remove member from organization
+ *     description: Remove member from organization
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         description: The id of the organization
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - name: memberUserId
+ *         in: path
+ *         description: The user id of the member
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Member removed from organization successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   description: Success status
+ *                 message:
+ *                   type: string
+ *                   description: Message
+ *                 data:
+ *                   type: object
+ *                   description: Member data
+ *       400:
+ *         description: Bad request
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   description: Success status
+ *                 message:
+ *                   type: string
+ *                   description: Message
+ *                 data:
+ *                   type: object
+ *                   description: Member data
+ *       401:
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   description: Success status
+ *                 message:
+ *                   type: string
+ *                   description: Message
+ *                 data:
+ *                   type: object
+ *                   description: Member data
+ *       403:   
+ *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   description: Success status
+ *                 message:
+ *                   type: string
+ *                   description: Message
+ *                 data:
+ *                   type: object
+ *                   description: Member data
+ *       404:
+ *         description: Not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   description: Success status
+ *                 message:
+ *                   type: string
+ *                   description: Message
+ *                 data:
+ *                   type: object
+ *                   description: Member data
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   description: Success status
+ *                 message:
+ *                   type: string
+ *                   description: Message
+ *                 data:
+ *                   type: object
+ *                   description: Member data
+ */
 
 router.delete('/:id/members/:memberUserId', authenticate, removeMemberFromOrganization);
 
