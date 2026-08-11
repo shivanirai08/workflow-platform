@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser';
 import { errorHandler } from './middleware/error.middleware';
 import authRoute from './modules/auth/auth.route';
 import organizationRoute from './modules/organizations/org.route';
+import projectRoute from './modules/projects/project.route';
 
 const app = express();
 
@@ -16,6 +17,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use('/api/auth', authRoute);
 app.use('/api/organizations', organizationRoute);
+app.use('/api/projects', projectRoute);
 
 app.use(errorHandler);
 
