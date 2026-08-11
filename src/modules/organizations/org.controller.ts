@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from 'express';
 import { AppError } from '../../utils/AppError';
-import { createOrganizationService, getOrganizationService, getAllOrganizationsService } from './org.services';
+import { createOrganizationService, getOrganizationService, getAllOrganizationsService, updateOrganizationService, deleteOrganizationService } from './org.services';
 
 
 
@@ -36,6 +36,9 @@ export const getOrganization = async (req: Request & { user?: { id:string }}, re
     try{
         const orgId = req.params.id as string;
         const userId = req.user!.id;
+        if (!orgId) {
+            return next(new AppError('Organization id is required', 400, 'VALIDATION_ERROR'));
+        }
         const organization = await getOrganizationService(orgId, userId);
         res.status(200).json({
             success: true,
@@ -64,11 +67,50 @@ export const getAllOrganizations = async (req: Request & { user?: { id:string }}
 }
 
 // update organization
-export const updateOrganization = async (req: Request, res: Response, next: NextFunction) => {
+export const updateOrganization = async (req: Request & { user?: { id:string }}, res: Response, next: NextFunction) => {
+    try{
+        const orgId = req.params.id as string;
+        const userId = req.user!.id;
+        const { name, slug } = req.body;
+        
+        if (!orgId) {
+            return next(new AppError('Organization id is required', 400, 'VALIDATION_ERROR'));
+        }
 
+        if (name === undefined && slug === undefined) {
+            return next(new AppError('Provide data to update', 400, 'VALIDATION_ERROR'));
+        }
+        
+        if (slug && (slug.length < 3 || slug.length > 20)) {
+            return next(new AppError('Slug must be between 3 and 20 characters', 400, 'VALIDATION_ERROR'));
+        }
+        if (name && (name.length < 3 || name.length > 50)) {
+            return next(new AppError('Name must be between 3 and 50 characters', 400, 'VALIDATION_ERROR'));
+        }
+        
+        const organization = await updateOrganizationService(userId, orgId, { name: name || undefined, slug: slug || undefined });
+        res.status(200).json({
+            success: true,
+            message: 'Organization updated successfully',
+            data: organization,
+        });
+    } catch (error) {
+        next(error);
+    }
 }
 
 // delete organization
-export const deleteOrganization = async (req: Request, res: Response, next: NextFunction) => {
-
+export const deleteOrganization = async (req: Request & { user?: { id:string }}, res: Response, next: NextFunction) => {
+    try{
+        const orgId = req.params.id as string;
+        const userId = req.user!.id;
+        const organization = await deleteOrganizationService(userId, orgId);
+        res.status(200).json({
+            success: true,
+            message: 'Organization deleted successfully',
+            data: organization,
+        });
+    } catch (error) {
+        next(error);
+    }
 }

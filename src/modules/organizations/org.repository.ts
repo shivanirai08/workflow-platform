@@ -69,3 +69,24 @@ export const findMembershipWithOrgs = async (userId: string) => {
         }
     });
 };
+
+
+// updating organization
+export const updateOrganization = async (orgId: string, organization: {
+    name?: string;
+    slug?: string;
+}) => {
+    
+    return await prisma.organization.update({ 
+        where: { id: orgId }, 
+        data: organization, 
+    });
+};
+
+
+// deleting organization
+export const deleteOrganization = async (orgId: string) => {
+    return await prisma.organization.delete({
+        where: { id: orgId },
+    });
+};
