@@ -4,7 +4,7 @@ import { swaggerSpec } from './config/swagger';
 import cookieParser from 'cookie-parser';
 import { errorHandler } from './middleware/error.middleware';
 import authRoute from './modules/auth/auth.route';
-import organizationRoute from './modules/organizations/org.routes';
+import organizationRoute from './modules/organizations/org.route';
 
 const app = express();
 
