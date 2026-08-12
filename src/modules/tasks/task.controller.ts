@@ -86,12 +86,46 @@ export const listTasks = async (req: AuthRequest, res: Response, next: NextFunct
   try {
     const userId = req.user!.id;
     const projectId = req.query.projectId as string | undefined;
+    const page = req.query.page !== undefined ? Number(req.query.page) : 1;
+    const limit = req.query.limit !== undefined ? Number(req.query.limit) : 10;
+    const assigneeId = req.query.assigneeId as string | undefined;
+    const status = req.query.status as TaskStatus | undefined;
+    const priority = req.query.priority as TaskPriority | undefined;
+    const sortBy = req.query.sortBy;
+    const sortOrder = req.query.sortOrder;
 
     if (!projectId) {
       return next(new AppError('projectId query param is required', 400, 'VALIDATION_ERROR'));
     }
 
-    const tasks = await listTasksService(userId, projectId);
+    if( !Number.isInteger(limit) || (limit < 1 || limit > 50)) {
+      return next(new AppError('limit must be between 1 and 50', 400, 'VALIDATION_ERROR'));
+    }
+    if( !Number.isInteger(page) || (page < 1)) {
+      return next(new AppError('page must be greater than 0', 400, 'VALIDATION_ERROR'));
+    }
+    if(sortBy !== undefined && sortBy !== 'createdAt' && sortBy !== 'dueDate' && sortBy !== 'priority' && sortBy !== 'title') {
+      return next(new AppError('sortBy must be createdAt, dueDate, priority or title', 400, 'VALIDATION_ERROR'));
+    }
+    if(sortOrder !== undefined && sortOrder !== 'asc' && sortOrder !== 'desc') {
+      return next(new AppError('sortOrder must be asc or desc', 400, 'VALIDATION_ERROR'));
+    }
+    if( status !== undefined && !TASK_STATUSES.includes(status)) {
+      return next(new AppError('Invalid status', 400, 'VALIDATION_ERROR'));
+    }
+    if( priority !== undefined && !TASK_PRIORITIES.includes(priority)) {
+      return next(new AppError('Invalid priority', 400, 'VALIDATION_ERROR'));
+    }
+
+    const tasks = await listTasksService(userId, projectId, {
+      page: page,
+      limit: limit,
+      assigneeId: assigneeId || undefined,
+      status: status || undefined,
+      priority: priority || undefined,
+      sortBy: sortBy || 'createdAt',
+      sortOrder: sortOrder || 'desc',
+    });
 
     return res.status(200).json({
       success: true,

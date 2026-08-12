@@ -7,7 +7,7 @@ import {
   createTask,
   deleteTask,
   findTaskById,
-  findTasksByProjectId,
+  findTasks,
   updateTask,
 } from './task.repository';
 
@@ -58,14 +58,42 @@ export const createTaskService = async (
 
 
 // listing all tasks of a project
-export const listTasksService = async (userId: string, projectId: string) => {
+export const listTasksService = async (userId: string, projectId: string, options: {
+  page: number;
+  limit: number;
+  assigneeId?: string | null;
+  status?: TaskStatus;
+  priority?: TaskPriority;
+  sortBy?: 'createdAt' | 'dueDate' | 'priority' | 'title';
+  sortOrder?: 'asc' | 'desc';
+}) => {
   const project = await findProjectById(projectId);
   if (!project) {
     throw new AppError('Project not found', 404, 'PROJECT_NOT_FOUND');
   }
 
   await assertOrgMember(userId, project.organizationId);
-  return findTasksByProjectId(projectId);
+
+  const skip = (options.page - 1) * options.limit;
+  const take = options.limit;
+  const { tasks, total } = await findTasks({
+    projectId,
+    skip,
+    take,
+    assigneeId: options.assigneeId ,
+    status: options.status ,
+    priority: options.priority,
+    sortBy: options.sortBy,
+    sortOrder: options.sortOrder,
+  });
+
+  return {
+    tasks,
+    page: options.page,
+    limit: options.limit,
+    total,
+    totalPages: Math.ceil(total / options.limit) || 0,
+  }
 };
 
 

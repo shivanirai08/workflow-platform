@@ -65,3 +65,38 @@ export const deleteTask = async (id: string) => {
     where: { id },
   });
 };
+
+
+export const findTasks = async (options: {
+  projectId: string;
+  skip: number;
+  take: number;
+  assigneeId?: string | null;
+  status?: TaskStatus;
+  priority?: TaskPriority;
+  sortBy?: 'createdAt' | 'dueDate' | 'priority' | 'title';
+  sortOrder?: 'asc' | 'desc';
+}) => {
+  const [tasks, total] = await Promise.all([
+    prisma.task.findMany({
+      where: {
+        projectId: options.projectId,
+        ...(options.assigneeId ? { assigneeId: options.assigneeId } : {}),
+        ...(options.status ? { status: options.status } : {}),
+        ...(options.priority ? { priority: options.priority } : {}),
+      },
+      skip: options.skip,
+      take: options.take,
+      orderBy: {
+        [options.sortBy ?? 'createdAt']: options.sortOrder ?? 'desc',
+      },
+    }),
+    prisma.task.count({ where: {
+      projectId: options.projectId,
+      ...(options.assigneeId ? { assigneeId: options.assigneeId } : {}),
+      ...(options.status ? { status: options.status } : {}),
+      ...(options.priority ? { priority: options.priority } : {}),
+    } }),
+  ]) 
+  return { tasks, total };
+};
