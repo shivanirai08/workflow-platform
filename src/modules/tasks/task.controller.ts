@@ -56,6 +56,8 @@ export const createTask = async (req: AuthRequest, res: Response, next: NextFunc
       return next(new AppError('assigneeId must be a string or null', 400, 'VALIDATION_ERROR'));
     }
 
+    const finalAssigneeId = typeof assigneeId === 'string' ? assigneeId.trim() || null : assigneeId ?? null;
+
     const parsedDueDate = parseDueDate(dueDate);
 
     const task = await createTaskService(userId, {
@@ -65,7 +67,7 @@ export const createTask = async (req: AuthRequest, res: Response, next: NextFunc
       status,
       priority,
       dueDate: parsedDueDate,
-      assigneeId: assigneeId ?? null,
+      assigneeId: finalAssigneeId,
     });
 
     return res.status(201).json({
@@ -154,6 +156,8 @@ export const updateTask = async (req: AuthRequest, res: Response, next: NextFunc
       return next(new AppError('assigneeId must be a string or null', 400, 'VALIDATION_ERROR'));
     }
 
+    const finalAssigneeId = typeof assigneeId === 'string' ? assigneeId.trim() || null : assigneeId ?? null;
+
     const parsedDueDate = parseDueDate(dueDate);
 
     const task = await updateTaskService(userId, taskId, {
@@ -162,7 +166,7 @@ export const updateTask = async (req: AuthRequest, res: Response, next: NextFunc
       status,
       priority,
       dueDate: parsedDueDate,
-      assigneeId,
+      assigneeId: finalAssigneeId,
     });
 
     return res.status(200).json({
