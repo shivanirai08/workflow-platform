@@ -1,6 +1,8 @@
 import { Router } from 'express';
 import { authenticate } from '../../middleware/auth.middleware';
 import { createTask, listTasks, getTask, updateTask, deleteTask } from './task.controller';
+import { validate } from '../../middleware/validate.middleware';
+import { listTaskQuerySchema } from './task.schema';
 
 const router = Router();
 
@@ -121,7 +123,7 @@ router.post('/', authenticate, createTask);
  *         description: Forbidden
  */
 
-router.get('/', authenticate, listTasks);
+router.get('/', authenticate, validate(listTaskQuerySchema, 'query'), listTasks);
 
 
 /** get a task by id
