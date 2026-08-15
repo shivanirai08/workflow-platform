@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { authenticate } from '../../middleware/auth.middleware';
 import { createTask, listTasks, getTask, updateTask, deleteTask } from './task.controller';
 import { validate } from '../../middleware/validate.middleware';
-import { listTaskQuerySchema } from './task.schema';
+import { createTaskBodySchema, listTaskQuerySchema } from './task.schema';
 
 const router = Router();
 
@@ -56,7 +56,7 @@ const router = Router();
  *         description: Unauthorized
  */
 
-router.post('/', authenticate, createTask);
+router.post('/', authenticate, validate(createTaskBodySchema, 'body'), createTask);
 
 
 /** list all tasks of a project

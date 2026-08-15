@@ -8,7 +8,7 @@ import {
   listTasksService,
   updateTaskService,
 } from './task.services';
-import type { ListTaskQuery } from './task.schema';
+import type { CreateTaskBody, ListTaskQuery } from './task.schema';
 
 type AuthRequest = Request & { user?: { id: string } };
 
@@ -32,43 +32,12 @@ const parseDueDate = (value: unknown): Date | null | undefined => {
 // creating task
 export const createTask = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    const { title, description, projectId, status, priority, dueDate, assigneeId } = req.body;
     const userId = req.user!.id;
-
-    if (!title || !projectId) {
-      return next(new AppError('title and projectId are required', 400, 'VALIDATION_ERROR'));
-    }
-    if (typeof title !== 'string' || title.length < 2 || title.length > 200) {
-      return next(new AppError('title must be between 2 and 200 characters', 400, 'VALIDATION_ERROR'));
-    }
-    if (typeof projectId !== 'string') {
-      return next(new AppError('projectId must be a string', 400, 'VALIDATION_ERROR'));
-    }
-    if (description !== undefined && typeof description !== 'string') {
-      return next(new AppError('description must be a string', 400, 'VALIDATION_ERROR'));
-    }
-    if (status !== undefined && !TASK_STATUSES.includes(status)) {
-      return next(new AppError('Invalid status', 400, 'VALIDATION_ERROR'));
-    }
-    if (priority !== undefined && !TASK_PRIORITIES.includes(priority)) {
-      return next(new AppError('Invalid priority', 400, 'VALIDATION_ERROR'));
-    }
-    if (assigneeId !== undefined && assigneeId !== null && typeof assigneeId !== 'string') {
-      return next(new AppError('assigneeId must be a string or null', 400, 'VALIDATION_ERROR'));
-    }
-
-    const finalAssigneeId = typeof assigneeId === 'string' ? assigneeId.trim() || null : assigneeId ?? null;
-
-    const parsedDueDate = parseDueDate(dueDate);
+    const data = (req as Request & { validated: CreateTaskBody }).validated;
 
     const task = await createTaskService(userId, {
-      title,
-      description,
-      projectId,
-      status,
-      priority,
-      dueDate: parsedDueDate,
-      assigneeId: finalAssigneeId,
+      ...data,
+      dueDate: data.dueDate !== undefined ? (data.dueDate ? new Date(data.dueDate) : null) : undefined
     });
 
     return res.status(201).json({

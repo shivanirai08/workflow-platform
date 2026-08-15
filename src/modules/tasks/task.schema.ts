@@ -13,4 +13,16 @@ export const listTaskQuerySchema = z.object({
 });
 
 
+export const createTaskBodySchema = z.object({
+    title: z.string().min(1, 'Title is required'),
+    projectId: z.string().min(1, 'Project ID is required'),
+    description: z.string().optional(),
+    priority: z.enum(TaskPriority).optional(),
+    status: z.enum(TaskStatus).optional(),
+    dueDate: z.iso.datetime().nullable().optional(),
+    assigneeId: z.string().trim().transform((v) => (v === '' ? null : v)).nullable().optional(),
+});
+
+
 export type ListTaskQuery = z.infer<typeof listTaskQuerySchema>;
+export type CreateTaskBody = z.infer<typeof createTaskBodySchema>;
