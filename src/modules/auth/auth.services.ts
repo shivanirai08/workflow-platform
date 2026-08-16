@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import { createRefreshToken, findRefreshToken, deleteRefreshToken, findUserById } from './user.repository';
 import { accessToken } from '../../utils/token.utils';
 import { AppError } from '../../utils/AppError';
+import { logger } from '../../utils/logger.utils';
 
 type User = {
   email: string;
@@ -28,6 +29,8 @@ export const registerUser = async (user: User) => {
   const refreshToken = await createRefreshToken(newUser.id);
   const access = accessToken(newUser.id);
 
+  logger.info({ event: 'auth.register', userId: newUser.id }, 'User registered');
+
   const { password, ...safeUser } = newUser;
   return { ...safeUser, access, refreshToken };
 };
@@ -46,6 +49,8 @@ export const loginUser = async (email: string, password: string) => {
   if (!isMatch) {
     throw new AppError('Invalid email or password', 401, 'INVALID_CREDENTIALS');
   }
+
+  logger.info({ event: 'auth.login', userId: user.id }, 'User logged in');
 
   const refreshToken = await createRefreshToken(user.id);
   const access = accessToken(user.id);
