@@ -9,7 +9,7 @@ export const errorHandler = (
   _next: NextFunction
 ) => {
   if (err instanceof AppError) {
-    logger.warn({ event: 'error.appError', error: err }, 'App error');
+    logger.warn({ event: 'error.appError', code: err.code, statusCode: err.statusCode }, 'App error');
     return res.status(err.statusCode).json({
       success: false,
       message: err.message,
@@ -17,7 +17,7 @@ export const errorHandler = (
     });
   }
 
-  logger.error({ event: 'error.unknown', error: err }, 'Unhandled error');
+  logger.error({ event: 'error.unknown', err }, 'Unhandled error');
 
   return res.status(500).json({
     success: false,
